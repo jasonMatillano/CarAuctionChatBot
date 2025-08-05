@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Auction Chatbot</title>
+  <style>
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #99a91f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #chatbot-container {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #chat-messages {
+      flex-grow: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    #chat-input {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    #chat-input input {
+      flex-grow: 1;
+      padding: 5px;
+      margin-right: 10px;
+    }
+    #chat-input button {
+      padding: 5px 10px;
+      background-color: #99a91f;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 3px;
+    }
+    .user-message {
+      background-color: #e0e0e0;
+      text-align: right;
+    }
+    .bot-message {
+      background-color: #d1e7dd;
+    }
+  </style>
+</head>
+<body>
+  <button id="chatbot-toggle">🤖</button>
+  <div id="chatbot-container">
+
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="chat-input-field" placeholder="Type your query...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const toggleButton = document.getElementById('chatbot-toggle');
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const chatMessages = document.getElementById('chat-messages'); // Messages container
+    const chatInputField = document.getElementById('chat-input-field'); // Input field
+
+    // Toggle chatbot visibility
+    toggleButton.addEventListener('click', () => {
+      const isVisible = chatbotContainer.style.display === 'flex';
+      chatbotContainer.style.display = isVisible ? 'none' : 'flex';
+    });
+
+    // Send message to Bedrock Agent
+    async function sendMessage() {
+      const query = chatInputField.value.trim(); // Correctly references input field
+      if (!query) return;
+
+      // Display user message
+      addMessage(query, 'user-message');
+      chatInputField.value = '';
+
+      try {
+        // Send query to Node.js backend
+        const response = await fetch('http://localhost:3000/invoke-agent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Display bot response
+          addMessage(data.results || 'No results found', 'bot-message');
+        } else {
+          const errorData = await response.json();
+          addMessage(`Error: ${errorData.error || 'Unable to get response'}`, 'bot-message');
+        }
+      } catch (error) {
+        addMessage(`Error: ${error.message}`, 'bot-message');
+      }
+    }
+
+    // Add message to chat
+    function addMessage(text, className) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${className}`;
+      messageDiv.textContent = text;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to latest message
+    }
+
+    // Handle Enter key
+    chatInputField.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>
