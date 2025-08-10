@@ -20,6 +20,11 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({
   apiVersion: '2012-08-10'
 });
 
+// Initialize S3 client
+const s3 = new AWS.S3({
+  apiVersion: '2006-03-01'
+});
+
 // Function to log conversation to DynamoDB (for chat)
 async function logConversation(sessionId, userQuery, botResponse) {
   const params = {
@@ -40,11 +45,36 @@ async function logConversation(sessionId, userQuery, botResponse) {
   }
 }
 
+// Function to sync conversation to S3 for agent knowledge base
+async function syncToS3(sessionId, userQuery, botResponse) {
+  const conversationData = {
+    sessionId: sessionId,
+    timestamp: new Date().toISOString(),
+    userQuery: userQuery,
+    botResponse: botResponse,
+  };
+
+  const params = {
+    Bucket: 'cloudcare-knowledge-base', // Replace with your S3 bucket name
+    Key: `conversations/${sessionId}.json`,
+    Body: JSON.stringify(conversationData),
+    ContentType: 'application/json'
+  };
+
+  try {
+    await s3.putObject(params).promise();
+    console.log('Conversation synced to S3:', sessionId);
+  } catch (error) {
+    console.error('Error syncing to S3:', error);
+  }
+}
+
 // Function to save user signup to DynamoDB
-async function saveUser(email, password) {
+async function saveUser(username, email, password) {
   const params = {
     TableName: 'UsersCloudCare',
     Item: {
+      username: username, // Primary key
       email: email,
       password: password, // In production, hash the password
       signupTimestamp: new Date().toISOString(),
@@ -53,7 +83,7 @@ async function saveUser(email, password) {
 
   try {
     await dynamoDB.put(params).promise();
-    console.log('User signed up:', email);
+    console.log('User signed up:', username);
     return { success: true };
   } catch (error) {
     console.error('Error saving user to DynamoDB:', error);
@@ -62,21 +92,21 @@ async function saveUser(email, password) {
 }
 
 // Function to check user login
-async function checkUser(email, password) {
+async function checkUser(username, password) {
   const params = {
     TableName: 'UsersCloudCare',
     Key: {
-      email: email
+      username: username
     }
   };
 
   try {
     const data = await dynamoDB.get(params).promise();
     if (data.Item && data.Item.password === password) { // In production, compare hashed passwords
-      console.log('User logged in:', email);
-      return { success: true, message: 'Login successful' };
+      console.log('User logged in:', username);
+      return { success: true, message: 'Login successful', username: username };
     } else {
-      return { success: false, error: 'Invalid email or password' };
+      return { success: false, error: 'Invalid username or password' };
     }
   } catch (error) {
     console.error('Error checking user:', error);
@@ -135,6 +165,7 @@ app.post('/invoke-agent', async (req, res) => {
     }
 
     await logConversation(sessionId, query, parsedResult);
+    await syncToS3(sessionId, query, parsedResult); // Sync with S3
     res.status(200).json({ results: parsedResult });
   } catch (error) {
     console.error('Error:', error.message, error.stack);
@@ -145,12 +176,12 @@ app.post('/invoke-agent', async (req, res) => {
 // API Endpoint for Signup
 app.post('/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    const { username, email, password } = req.body; // Updated to include username
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'Username, email, and password are required' });
     }
 
-    const result = await saveUser(email, password);
+    const result = await saveUser(username, email, password);
     if (result.success) {
       res.status(200).json({ message: 'Signup successful' });
     } else {
@@ -162,17 +193,17 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-// New API Endpoint for Login
+// API Endpoint for Login
 app.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    const { username, password } = req.body; // Changed from email to username
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    const result = await checkUser(email, password);
+    const result = await checkUser(username, password);
     if (result.success) {
-      res.status(200).json({ message: result.message });
+      res.status(200).json({ message: result.message, username: result.username });
     } else {
       res.status(401).json({ error: result.error });
     }

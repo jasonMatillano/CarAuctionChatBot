@@ -15,6 +15,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            position: relative; /* Added to enable absolute positioning of signout */
         }
         .container {
             text-align: center;
@@ -31,6 +32,11 @@
         p {
             font-size: 1.2em;
             margin-bottom: 20px;
+        }
+        .username {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #6b48ff;
         }
         .chat-container {
             flex: 1;
@@ -88,11 +94,28 @@
         .send-btn:hover {
             background-color: #5a3de6;
         }
+        .signout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .signout-btn:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Introducing CloudCare</h1>
+        <p class="username" id="username">Welcome, Guest</p>
         <p>CloudCare is a cloud-based virtual wellness assistant that uses AI to support mental health and productivity through personalized wellness check-ins, mood tracking, and AI-generated mindfulness routines tailored for tech learners and professionals.</p>
         <div class="chat-container" id="chatContainer">
             <!-- Chat messages will be appended here -->
@@ -102,8 +125,22 @@
             <button class="send-btn" onclick="sendMessage()">Send</button>
         </div>
     </div>
+    <button class="signout-btn" onclick="signOut(event)">Sign Out</button>
     <script>
         const socket = io();
+
+        // Display username from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = localStorage.getItem('username') || 'Guest';
+            document.getElementById('username').textContent = `Welcome, ${username}`;
+        });
+
+        // Sign out function
+        function signOut(event) {
+            event.preventDefault();
+            localStorage.removeItem('username'); // Remove username from localStorage
+            window.location.href = './login.html'; // Redirect to login page
+        }
 
         // Listen for bot responses via Socket.IO
         socket.on('botResponse', (data) => {

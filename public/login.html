@@ -20,7 +20,7 @@
             font-size: 2em;
             margin-bottom: 20px;
         }
-        input[type="email"], input[type="password"] {
+        input[type="text"], input[type="password"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
@@ -93,7 +93,7 @@
     <div class="container">
         <h1>Welcome back to CloudCare</h1>
         <form id="loginForm" action="/login" method="POST">
-            <input type="email" name="email" placeholder="Email address" required>
+            <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Continue</button>
         </form>
@@ -121,8 +121,10 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
+                    // Save username to localStorage
+                    localStorage.setItem('username', result.username || 'Guest');
                     alert('Login successful!');
-                    // Redirect to home page or dashboard (adjust as needed)
+                    // Redirect to home page
                     window.location.href = './home.html';
                 } else {
                     alert('Login failed: ' + result.error);
