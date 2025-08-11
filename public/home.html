@@ -15,7 +15,7 @@
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            position: relative; /* Added to enable absolute positioning of signout */
+            position: relative;
         }
         .container {
             text-align: center;
@@ -126,77 +126,87 @@
         </div>
     </div>
     <button class="signout-btn" onclick="signOut(event)">Sign Out</button>
-    <script>
-        const socket = io();
+<script>
+    const socket = io();
 
-        // Display username from localStorage
-        document.addEventListener('DOMContentLoaded', () => {
-            const username = localStorage.getItem('username') || 'Guest';
-            document.getElementById('username').textContent = `Welcome, ${username}`;
-        });
+    // Display username and load conversation history
+    document.addEventListener('DOMContentLoaded', async () => {
+        const username = localStorage.getItem('username') || 'Guest';
+        document.getElementById('username').textContent = `Welcome, ${username}`;
 
-        // Sign out function
-        function signOut(event) {
-            event.preventDefault();
-            localStorage.removeItem('username'); // Remove username from localStorage
-            window.location.href = './login.html'; // Redirect to login page
-        }
-
-        // Listen for bot responses via Socket.IO
-        socket.on('botResponse', (data) => {
-            console.log('Received bot response:', data);
-            appendMessage('bot', data.message || 'No message received');
-        });
-
-        // Send message to server
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const query = input.value.trim();
-            if (!query) return;
-
-            // Append user message
-            appendMessage('user', query);
-            input.value = '';
-
+        if (username !== 'Guest') {
             try {
-                console.log('Sending query to /invoke-agent:', query);
-                const response = await fetch('/invoke-agent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
-                });
+                const response = await fetch(`/api/get-history?username=${encodeURIComponent(username)}`);
                 const data = await response.json();
-                console.log('Server response:', data);
                 if (response.ok) {
-                    // Append bot response (using Bedrock's results.message)
-                    appendMessage('bot', data.results || 'No response from bot');
-                    // Emit to Socket.IO for real-time updates
-                    socket.emit('userMessage', { query, response: data.results });
-                } else {
-                    appendMessage('bot', 'Error: ' + data.error);
+                    data.history.forEach(conv => {
+                        if (conv.userQuery) appendMessage('user', conv.userQuery);
+                        if (conv.botResponse) appendMessage('bot', conv.botResponse);
+                    });
                 }
             } catch (error) {
-                appendMessage('bot', 'Error: Failed to communicate with server');
-                console.error('Fetch error:', error);
+                console.error('Error loading history:', error);
             }
         }
+    });
 
-        // Append message to chat container
-        function appendMessage(sender, message) {
-            const chatContainer = document.getElementById('chatContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = message;
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Sign out function
+    function signOut(event) {
+        event.preventDefault();
+        localStorage.removeItem('username');
+        window.location.href = './login.html';
+    }
+
+    // Send message to server
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const query = input.value.trim();
+        const username = localStorage.getItem('username');
+        
+        if (!query) return;
+        if (!username || username === 'Guest') {
+            appendMessage('bot', 'Error: Please sign in to use the chat');
+            return;
         }
 
-        // Handle Enter key press
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
+        appendMessage('user', query);
+        input.value = '';
+
+        try {
+            const response = await fetch('/api/invoke-agent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, username })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                appendMessage('bot', data.results || 'No response from bot');
+                socket.emit('userMessage', { query, response: data.results });
+            } else {
+                appendMessage('bot', 'Error: ' + data.error);
             }
-        });
-    </script>
+        } catch (error) {
+            appendMessage('bot', 'Error: Failed to communicate with server');
+            console.error('Fetch error:', error);
+        }
+    }
+
+    // Append message to chat container
+    function appendMessage(sender, message) {
+        const chatContainer = document.getElementById('chatContainer');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+        messageDiv.textContent = message;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Handle Enter key press
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
 </body>
 </html>
