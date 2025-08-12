@@ -5,13 +5,13 @@ const { v4: uuidv4 } = require('uuid');
 // Function to save user signup to DynamoDB
 async function saveUser(firstname, lastname, email, password, dynamoDB) {
   const userId = uuidv4();
-  const emailCheck = await dynamoDB.query({
+  const emailCheck = await dynamoDB.query({ // Use query instead of get to retrieve multiple items with the same email address 
     TableName: 'CloudCareUsers',
     IndexName: 'EmailIndex',
     KeyConditionExpression: 'email = :email',
     ExpressionAttributeValues: { ':email': email }
   }).promise();
-  if (emailCheck.Items.length > 0) {
+  if (emailCheck.Items.length > 0) { // Check if email already exists 
     return { success: false, error: 'Email already exists' };
   }
 
@@ -38,7 +38,7 @@ async function saveUser(firstname, lastname, email, password, dynamoDB) {
   }
 }
 
-// Function to check user login
+// Function to check user login credentials in DynamoDB and return user details if valid credentials are provided in the request body (email and password)
 async function checkUser(email, password, dynamoDB) {
   const params = {
     TableName: 'CloudCareUsers',
@@ -48,9 +48,9 @@ async function checkUser(email, password, dynamoDB) {
   };
 
   try {
-    const data = await dynamoDB.query(params).promise();
-    if (data.Items.length > 0 && data.Items[0].password === password) {
-      console.log('User logged in:', email);
+    const data = await dynamoDB.query(params).promise(); // Use query instead of get to retrieve multiple items with the same email 
+    if (data.Items.length > 0 && data.Items[0].password === password) { // In production, hash the password 
+      console.log('User logged in:', email); // Add this line
       return {
         success: true,
         message: 'Login successful',
