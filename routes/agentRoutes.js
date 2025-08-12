@@ -53,7 +53,7 @@ router.post('/invoke-agent', async (req, res) => {
 
     let context = '';
     if (conversations.length > 0) {
-      const recentConversations = conversations.slice(-3).reverse();
+      const recentConversations = conversations.slice(-5).reverse(); // Get the last 5 conversations (adjust as needed) 
       context = recentConversations.map(conv => `${conv.userQuery} - ${conv.botResponse}`).join('\n');
       context = `Previous context:\n${context}\nCurrent query: `;
     }

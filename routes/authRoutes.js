@@ -1,19 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcrypt');
 
 // Function to save user signup to DynamoDB
 async function saveUser(firstname, lastname, email, password, dynamoDB) {
   const userId = uuidv4();
-  const emailCheck = await dynamoDB.query({ // Use query instead of get to retrieve multiple items with the same email address 
+  const emailCheck = await dynamoDB.query({
     TableName: 'CloudCareUsers',
     IndexName: 'EmailIndex',
     KeyConditionExpression: 'email = :email',
     ExpressionAttributeValues: { ':email': email }
   }).promise();
-  if (emailCheck.Items.length > 0) { // Check if email already exists 
+  if (emailCheck.Items.length > 0) {
     return { success: false, error: 'Email already exists' };
   }
+
+  // Hash the password before storing
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const params = {
     TableName: 'CloudCareUsers',
@@ -22,7 +27,7 @@ async function saveUser(firstname, lastname, email, password, dynamoDB) {
       firstname,
       lastname,
       email,
-      password, // In production, hash the password
+      password: hashedPassword, // Store hashed password
       signupTimestamp: new Date().toISOString(),
       conversations: []
     }
@@ -38,7 +43,7 @@ async function saveUser(firstname, lastname, email, password, dynamoDB) {
   }
 }
 
-// Function to check user login credentials in DynamoDB and return user details if valid credentials are provided in the request body (email and password)
+// Function to check user login credentials in DynamoDB
 async function checkUser(email, password, dynamoDB) {
   const params = {
     TableName: 'CloudCareUsers',
@@ -48,20 +53,23 @@ async function checkUser(email, password, dynamoDB) {
   };
 
   try {
-    const data = await dynamoDB.query(params).promise(); // Use query instead of get to retrieve multiple items with the same email 
-    if (data.Items.length > 0 && data.Items[0].password === password) { // In production, hash the password 
-      console.log('User logged in:', email); // Add this line
-      return {
-        success: true,
-        message: 'Login successful',
-        userId: data.Items[0].userId,
-        firstname: data.Items[0].firstname,
-        lastname: data.Items[0].lastname,
-        email: data.Items[0].email
-      };
-    } else {
-      return { success: false, error: 'Invalid email or password' };
+    const data = await dynamoDB.query(params).promise();
+    if (data.Items.length > 0) {
+      // Compare provided password with stored hashed password
+      const isPasswordValid = await bcrypt.compare(password, data.Items[0].password);
+      if (isPasswordValid) {
+        console.log('User logged in:', email);
+        return {
+          success: true,
+          message: 'Login successful',
+          userId: data.Items[0].userId,
+          firstname: data.Items[0].firstname,
+          lastname: data.Items[0].lastname,
+          email: data.Items[0].email
+        };
+      }
     }
+    return { success: false, error: 'Invalid email or password' };
   } catch (error) {
     console.error('Error checking user:', error);
     return { success: false, error: 'Internal server error' };
