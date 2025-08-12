@@ -144,6 +144,8 @@
                         if (conv.userQuery) appendMessage('user', conv.userQuery);
                         if (conv.botResponse) appendMessage('bot', conv.botResponse);
                     });
+                    // Append greeting after history is loaded
+                    appendMessage('bot', `Hello, ${firstname}! How can I assist you today?`);
                 }
             } catch (error) {
                 console.error('Error loading history:', error);
