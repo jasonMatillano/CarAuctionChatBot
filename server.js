@@ -1,12 +1,11 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
 const AWS = require('aws-sdk');
 require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
 
 // Configure AWS SDK
 AWS.config.update({

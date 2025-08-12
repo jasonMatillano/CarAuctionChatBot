@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>CloudCare</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
     <style>
         body {
             margin: 0;
@@ -127,8 +126,6 @@
     </div>
     <button class="signout-btn" onclick="signOut(event)">Sign Out</button>
 <script>
-    const socket = io();
-
     // Display firstname and load conversation history
     document.addEventListener('DOMContentLoaded', async () => {
         const firstname = localStorage.getItem('firstname') || 'Guest';
@@ -187,7 +184,6 @@
             const data = await response.json();
             if (response.ok) {
                 appendMessage('bot', data.results || 'No response from bot');
-                socket.emit('userMessage', { query, response: data.results });
             } else {
                 appendMessage('bot', 'Error: ' + data.error);
             }
