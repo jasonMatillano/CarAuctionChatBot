@@ -1,12 +1,26 @@
 const express = require('express');
 const router = express.Router();
+const { v4: uuidv4 } = require('uuid');
 
 // Function to save user signup to DynamoDB
-async function saveUser(username, email, password, dynamoDB) {
+async function saveUser(firstname, lastname, email, password, dynamoDB) {
+  const userId = uuidv4();
+  const emailCheck = await dynamoDB.query({
+    TableName: 'CloudCareUsers',
+    IndexName: 'EmailIndex',
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: { ':email': email }
+  }).promise();
+  if (emailCheck.Items.length > 0) {
+    return { success: false, error: 'Email already exists' };
+  }
+
   const params = {
-    TableName: 'UsersCloudCare',
+    TableName: 'CloudCareUsers',
     Item: {
-      username,
+      userId,
+      firstname,
+      lastname,
       email,
       password, // In production, hash the password
       signupTimestamp: new Date().toISOString(),
@@ -16,8 +30,8 @@ async function saveUser(username, email, password, dynamoDB) {
 
   try {
     await dynamoDB.put(params).promise();
-    console.log('User signed up:', username);
-    return { success: true };
+    console.log('User signed up:', email);
+    return { success: true, userId, firstname, lastname, email };
   } catch (error) {
     console.error('Error saving user to DynamoDB:', error);
     return { success: false, error: 'Failed to save user' };
@@ -25,19 +39,28 @@ async function saveUser(username, email, password, dynamoDB) {
 }
 
 // Function to check user login
-async function checkUser(username, password, dynamoDB) {
+async function checkUser(email, password, dynamoDB) {
   const params = {
-    TableName: 'UsersCloudCare',
-    Key: { username }
+    TableName: 'CloudCareUsers',
+    IndexName: 'EmailIndex',
+    KeyConditionExpression: 'email = :email',
+    ExpressionAttributeValues: { ':email': email }
   };
 
   try {
-    const data = await dynamoDB.get(params).promise();
-    if (data.Item && data.Item.password === password) { // In production, compare hashed passwords
-      console.log('User logged in:', username);
-      return { success: true, message: 'Login successful', username };
+    const data = await dynamoDB.query(params).promise();
+    if (data.Items.length > 0 && data.Items[0].password === password) {
+      console.log('User logged in:', email);
+      return {
+        success: true,
+        message: 'Login successful',
+        userId: data.Items[0].userId,
+        firstname: data.Items[0].firstname,
+        lastname: data.Items[0].lastname,
+        email: data.Items[0].email
+      };
     } else {
-      return { success: false, error: 'Invalid username or password' };
+      return { success: false, error: 'Invalid email or password' };
     }
   } catch (error) {
     console.error('Error checking user:', error);
@@ -48,16 +71,22 @@ async function checkUser(username, password, dynamoDB) {
 // API Endpoint for Signup
 router.post('/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-      return res.status(400).json({ error: 'Username, email, and password are required' });
+    const { firstname, lastname, email, password } = req.body;
+    if (!firstname || !lastname || !email || !password) {
+      return res.status(400).json({ error: 'First name, last name, email, and password are required' });
     }
 
-    const result = await saveUser(username, email, password, req.app.get('dynamoDB'));
+    const result = await saveUser(firstname, lastname, email, password, req.app.get('dynamoDB'));
     if (result.success) {
-      res.status(200).json({ message: 'Signup successful' });
+      res.status(200).json({
+        message: 'Signup successful',
+        userId: result.userId,
+        firstname: result.firstname,
+        lastname: result.lastname,
+        email: result.email
+      });
     } else {
-      res.status(500).json({ error: result.error });
+      res.status(400).json({ error: result.error });
     }
   } catch (error) {
     console.error('Signup error:', error.message, error.stack);
@@ -68,14 +97,20 @@ router.post('/signup', async (req, res) => {
 // API Endpoint for Login
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const result = await checkUser(username, password, req.app.get('dynamoDB'));
+    const result = await checkUser(email, password, req.app.get('dynamoDB'));
     if (result.success) {
-      res.status(200).json({ message: result.message, username: result.username });
+      res.status(200).json({
+        message: result.message,
+        userId: result.userId,
+        firstname: result.firstname,
+        lastname: result.lastname,
+        email: result.email
+      });
     } else {
       res.status(401).json({ error: result.error });
     }

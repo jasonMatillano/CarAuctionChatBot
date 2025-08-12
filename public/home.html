@@ -129,14 +129,15 @@
 <script>
     const socket = io();
 
-    // Display username and load conversation history
+    // Display firstname and load conversation history
     document.addEventListener('DOMContentLoaded', async () => {
-        const username = localStorage.getItem('username') || 'Guest';
-        document.getElementById('username').textContent = `Welcome, ${username}`;
+        const firstname = localStorage.getItem('firstname') || 'Guest';
+        const userId = localStorage.getItem('userId') || 'Guest';
+        document.getElementById('username').textContent = `Welcome, ${firstname}`;
 
-        if (username !== 'Guest') {
+        if (userId !== 'Guest') {
             try {
-                const response = await fetch(`/api/get-history?username=${encodeURIComponent(username)}`);
+                const response = await fetch(`/api/get-history?userId=${encodeURIComponent(userId)}`);
                 const data = await response.json();
                 if (response.ok) {
                     data.history.forEach(conv => {
@@ -153,7 +154,10 @@
     // Sign out function
     function signOut(event) {
         event.preventDefault();
-        localStorage.removeItem('username');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('firstname');
+        localStorage.removeItem('lastname');
+        localStorage.removeItem('email');
         window.location.href = './login.html';
     }
 
@@ -161,10 +165,10 @@
     async function sendMessage() {
         const input = document.getElementById('userInput');
         const query = input.value.trim();
-        const username = localStorage.getItem('username');
+        const userId = localStorage.getItem('userId');
         
         if (!query) return;
-        if (!username || username === 'Guest') {
+        if (!userId || userId === 'Guest') {
             appendMessage('bot', 'Error: Please sign in to use the chat');
             return;
         }
@@ -176,7 +180,7 @@
             const response = await fetch('/api/invoke-agent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, username })
+                body: JSON.stringify({ query, userId })
             });
             const data = await response.json();
             if (response.ok) {

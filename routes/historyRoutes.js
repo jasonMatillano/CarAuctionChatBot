@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 
 // Function to retrieve conversation history
-async function getConversationHistory(username, dynamoDB) {
+async function getConversationHistory(userId, dynamoDB) {
   const params = {
-    TableName: 'UsersCloudCare',
-    Key: { username }
+    TableName: 'CloudCareUsers',
+    Key: { userId }
   };
 
   try {
@@ -17,14 +17,14 @@ async function getConversationHistory(username, dynamoDB) {
   }
 }
 
-// New API endpoint to get conversation history
+// API endpoint to get conversation history
 router.get('/get-history', async (req, res) => {
   try {
-    const { username } = req.query;
-    if (!username) {
-      return res.status(400).json({ error: 'Username is required' });
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
     }
-    const history = await getConversationHistory(username, req.app.get('dynamoDB'));
+    const history = await getConversationHistory(userId, req.app.get('dynamoDB'));
     res.status(200).json({ history });
   } catch (error) {
     console.error('Error in get-history:', error);

@@ -10,10 +10,10 @@ const bedrockClient = new BedrockAgentRuntimeClient({
 });
 
 // Function to log conversation to DynamoDB
-async function logConversation(username, userQuery, botResponse, dynamoDB) {
+async function logConversation(userId, userQuery, botResponse, dynamoDB) {
   const params = {
-    TableName: 'UsersCloudCare',
-    Key: { username },
+    TableName: 'CloudCareUsers',
+    Key: { userId },
     UpdateExpression: 'SET conversations = list_append(if_not_exists(conversations, :empty_list), :new_conversation)',
     ExpressionAttributeValues: {
       ':new_conversation': [{
@@ -29,7 +29,7 @@ async function logConversation(username, userQuery, botResponse, dynamoDB) {
 
   try {
     await dynamoDB.update(params).promise();
-    console.log('Conversation logged to DynamoDB for user:', username);
+    console.log('Conversation logged to DynamoDB for user:', userId);
   } catch (error) {
     console.error('Error logging conversation to DynamoDB:', error);
   }
@@ -38,15 +38,15 @@ async function logConversation(username, userQuery, botResponse, dynamoDB) {
 // API Endpoint for Bedrock Agent
 router.post('/invoke-agent', async (req, res) => {
   try {
-    const { query, username } = req.body;
-    if (!query || typeof query !== 'string' || !username) {
-      return res.status(400).json({ error: 'A valid query string and username are required' });
+    const { query, userId } = req.body;
+    if (!query || typeof query !== 'string' || !userId) {
+      return res.status(400).json({ error: 'A valid query string and userId are required' });
     }
 
     const sessionId = 'user-session-' + Date.now();
     const params = {
-      TableName: 'UsersCloudCare',
-      Key: { username }
+      TableName: 'CloudCareUsers',
+      Key: { userId }
     };
     const userData = await req.app.get('dynamoDB').get(params).promise();
     const conversations = userData.Item?.conversations || [];
@@ -85,7 +85,7 @@ router.post('/invoke-agent', async (req, res) => {
       parsedResult = fullResponse;
     }
 
-    await logConversation(username, query, parsedResult, req.app.get('dynamoDB'));
+    await logConversation(userId, query, parsedResult, req.app.get('dynamoDB'));
     res.status(200).json({ results: parsedResult });
   } catch (error) {
     console.error('Error:', error.message, error.stack);

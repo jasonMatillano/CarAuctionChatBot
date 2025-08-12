@@ -3,6 +3,9 @@
 <head>
     <title>Login</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -15,18 +18,32 @@
         }
         .container {
             text-align: center;
+            max-width: 400px;
+            width: 100%;
+            padding: 0 20px;
         }
         h1 {
             font-size: 2em;
             margin-bottom: 20px;
         }
-        input[type="text"], input[type="password"] {
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #333;
+        }
+        input[type="email"], input[type="password"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
+        }
+        input:focus, button:focus, .social-btn:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
         }
         button {
             width: 100%;
@@ -40,6 +57,11 @@
         }
         button:hover {
             background-color: #333;
+        }
+        .error {
+            color: red;
+            margin-bottom: 10px;
+            font-size: 0.9em;
         }
         .social-login {
             margin-top: 20px;
@@ -64,8 +86,6 @@
         .link {
             margin-top: 20px;
             font-size: 0.9em;
-            color: #007bff;
-            text-decoration: none;
         }
         .link a {
             color: #007bff;
@@ -92,16 +112,18 @@
 <body>
     <div class="container">
         <h1>Welcome back to CloudCare</h1>
-        <form id="loginForm" action="/login" method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
+        <form id="loginForm" method="POST">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Email address" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Password" required>
             <button type="submit">Continue</button>
         </form>
         <div class="link">Don't have an account? <a href="./signup.html">Sign up</a></div>
         <div class="social-login">
-            <div class="social-btn"><img src="https://www.google.com/favicon.ico" alt="Google">Continue with Google</div>
-            <div class="social-btn"><img src="https://www.microsoft.com/favicon.ico" alt="Microsoft">Continue with Microsoft Account</div>
-            <div class="social-btn"><img src="https://www.apple.com/favicon.ico" alt="Apple">Continue with Apple</div>
+            <div class="social-btn" aria-label="Continue with Google"><img src="https://www.google.com/favicon.ico" alt="Google">Continue with Google</div>
+            <div class="social-btn" aria-label="Continue with Microsoft Account"><img src="https://www.microsoft.com/favicon.ico" alt="Microsoft">Continue with Microsoft Account</div>
+            <div class="social-btn" aria-label="Continue with Apple"><img src="https://www.apple.com/favicon.ico" alt="Apple">Continue with Apple</div>
         </div>
         <div class="footer">
             <a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a>
@@ -110,7 +132,14 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
+            const form = e.target;
+            const button = form.querySelector('button');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            form.prepend(errorDiv);
+
+            button.disabled = true;
+            const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
             try {
@@ -121,17 +150,22 @@
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    // Save username to localStorage
-                    localStorage.setItem('username', result.username || 'Guest');
+                    // Save userId, firstname, lastname, and email to localStorage
+                    localStorage.setItem('userId', result.userId || 'Unknown');
+                    localStorage.setItem('firstname', result.firstname || 'Unknown');
+                    localStorage.setItem('lastname', result.lastname || 'Unknown');
+                    localStorage.setItem('email', result.email || 'Unknown');
                     alert('Login successful!');
                     // Redirect to home page
                     window.location.href = './home.html';
                 } else {
-                    alert('Login failed: ' + result.error);
+                    errorDiv.textContent = `Login failed: ${result.error}`;
                 }
             } catch (error) {
-                alert('Error: Failed to login');
+                errorDiv.textContent = 'Error: Failed to login';
                 console.error('Fetch error:', error);
+            } finally {
+                button.disabled = false;
             }
         });
     </script>
