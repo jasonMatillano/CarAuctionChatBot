@@ -19,7 +19,7 @@
         .container {
             text-align: center;
             width: 90%;
-            max-width: 800px; /* Increased from 600px to make chatbox wider */
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             height: 80vh;
@@ -76,7 +76,7 @@
             border: none;
             border-radius: 5px 0 0 5px;
             outline: none;
-            width: 80%; /* Increased from 70% to match wider chatbox */
+            width: 80%;
             background: #fff;
             color: #000;
         }
@@ -93,21 +93,32 @@
         .send-btn:hover {
             background-color: #5a3de6;
         }
-        .signout-btn {
+        .signout-btn, .mood-history-btn {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
             padding: 10px 20px;
             font-size: 1em;
-            background-color: #ff4d4d;
-            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
+        .signout-btn {
+            bottom: 20px;
+            left: 20px;
+            background-color: #ff4d4d;
+            color: #fff;
+        }
         .signout-btn:hover {
             background-color: #cc0000;
+        }
+        .mood-history-btn {
+            bottom: 20px;
+            right: 20px;
+            background-color: #6b48ff;
+            color: #fff;
+        }
+        .mood-history-btn:hover {
+            background-color: #5a3de6;
         }
     </style>
 </head>
@@ -125,6 +136,7 @@
         </div>
     </div>
     <button class="signout-btn" onclick="signOut(event)">Sign Out</button>
+    <button class="mood-history-btn" onclick="window.location.href='mood_graph.html'">Mood History</button>
 <script>
     // Display firstname and load conversation history
     document.addEventListener('DOMContentLoaded', async () => {

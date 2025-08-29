@@ -1,0 +1,175 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Graph</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        #moodChart {
+            max-width: 800px;
+            width: 100%;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Mood History</h1>
+    <canvas id="moodChart"></canvas>
+    <div id="error" class="error" style="display: none;"></div>
+    <button class="back-btn" onclick="window.location.href='home.html'">Back to Home</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        async function fetchMoodData() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'No user ID found. Please log in.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/mood?userId=${encodeURIComponent(userId)}`);
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to fetch mood data');
+                }
+                return result.mood || [];
+            } catch (error) {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+                return [];
+            }
+        }
+
+        function renderMoodChart(moods) {
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            const moodValues = {
+                'Happy': 5,
+                'Content': 4,
+                'Neutral': 3,
+                'Sad': 2,
+                'Angry': 1
+            };
+
+            const labels = moods.map(entry => new Date(entry.timestamp).toLocaleString());
+            const data = moods.map(entry => moodValues[entry.mood] || 3);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Mood Over Time',
+                        data: data,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 6,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const moodMap = { 5: 'Happy', 4: 'Content', 3: 'Neutral', 2: 'Sad', 1: 'Angry' };
+                                    return moodMap[value] || '';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize chart on page load
+        fetchMoodData().then(moods => {
+            if (moods.length > 0) {
+                renderMoodChart(moods);
+            } else {
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 'No mood data available.';
+            }
+        });
+    </script>
+</body>
+</html>

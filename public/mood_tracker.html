@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+        .mood-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .mood-scale {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .mood-scale span {
+            font-size: 40px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+        .mood-scale span:hover {
+            transform: scale(1.5);
+        }
+        .mood-scale span:hover::after {
+            content: attr(data-description);
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .description {
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mood-container">
+        <div class="mood-scale">
+            <span data-description="Happy" onclick="submitMood('Happy')">😊</span>
+            <span data-description="Content" onclick="submitMood('Content')">🙂</span>
+            <span data-description="Neutral" onclick="submitMood('Neutral')">😐</span>
+            <span data-description="Sad" onclick="submitMood('Sad')">😕</span>
+            <span data-description="Angry" onclick="submitMood('Angry')">😡</span>
+        </div>
+        <div class="description">Click an emoji to select your mood!</div>
+    </div>
+
+    <script>
+        function submitMood(mood) {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                console.error('No userId found in localStorage');
+                window.location.href = 'home.html'; // Redirect even if userId is missing
+                return;
+            }
+            const timestamp = new Date().toISOString();
+            const data = {
+                userId: userId,
+                mood: mood,
+                timestamp: timestamp
+            };
+            console.log('Submitting:', data);
+            fetch('/api/mood', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result);
+                window.location.href = 'home.html'; // Redirect to home.html
+            })
+            .catch(error => {
+                console.error('Error submitting mood:', error);
+                window.location.href = 'home.html'; // Redirect even if there's an error
+            });
+        }
+    </script>
+</body>
+</html>
