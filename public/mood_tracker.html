@@ -50,32 +50,94 @@
             text-align: center;
             margin-top: 10px;
         }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .modal-content p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0 20px;
+        }
+        .modal-content button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="mood-container">
         <div class="mood-scale">
-            <span data-description="Happy" onclick="submitMood('Happy')">😊</span>
-            <span data-description="Content" onclick="submitMood('Content')">🙂</span>
-            <span data-description="Neutral" onclick="submitMood('Neutral')">😐</span>
-            <span data-description="Sad" onclick="submitMood('Sad')">😕</span>
-            <span data-description="Angry" onclick="submitMood('Angry')">😡</span>
+            <span data-description="Happy" onclick="showModal('Happy', '😊', 'Hey there! Your happiness is contagious!', 'Keep spreading those good vibes! Maybe share a smile with someone today.')">😊</span>
+            <span data-description="Content" onclick="showModal('Content', '🙂', 'Hello! You seem to be in a calm and content mood.', 'Take a moment to enjoy this peace. A short walk or some light reading could keep the good feelings going.')">🙂</span>
+            <span data-description="Neutral" onclick="showModal('Neutral', '😐', 'Hi! You\'re feeling steady and balanced today.', 'Try something new to spark some excitement, like listening to a new song or exploring a hobby.')">😐</span>
+            <span data-description="Sad" onclick="showModal('Sad', '😕', 'Hey, it\'s okay to feel a bit down sometimes.', 'Consider talking to a friend or doing something comforting, like watching a favorite movie or enjoying a warm drink.')">😕</span>
+            <span data-description="Angry" onclick="showModal('Angry', '😡', 'Hi there, it seems like you\'re feeling fired up.', 'Take a deep breath and maybe try some calming activities like deep breathing or a quick workout to channel that energy.')">😡</span>
         </div>
         <div class="description">Click an emoji to select your mood!</div>
     </div>
 
+    <div id="moodModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalMood"></h2>
+            <p id="modalGreeting"></p>
+            <p id="modalAdvice"></p>
+            <button onclick="submitMood()">Proceed to Chat</button>
+        </div>
+    </div>
+
     <script>
-        function submitMood(mood) {
+        let selectedMood = '';
+
+        function showModal(mood, emoji, greeting, advice) {
+            selectedMood = mood;
+            document.getElementById('modalMood').textContent = `${emoji} ${mood}`;
+            document.getElementById('modalGreeting').textContent = greeting;
+            document.getElementById('modalAdvice').textContent = advice;
+            document.getElementById('moodModal').style.display = 'flex';
+        }
+
+        function submitMood() {
             const userId = localStorage.getItem('userId');
             if (!userId) {
                 console.error('No userId found in localStorage');
-                window.location.href = 'home.html'; // Redirect even if userId is missing
+                window.location.href = 'home.html';
                 return;
             }
             const timestamp = new Date().toISOString();
             const data = {
                 userId: userId,
-                mood: mood,
+                mood: selectedMood,
                 timestamp: timestamp
             };
             console.log('Submitting:', data);
@@ -87,11 +149,11 @@
             .then(response => response.json())
             .then(result => {
                 console.log(result);
-                window.location.href = 'home.html'; // Redirect to home.html
+                window.location.href = 'home.html';
             })
             .catch(error => {
                 console.error('Error submitting mood:', error);
-                window.location.href = 'home.html'; // Redirect even if there's an error
+                window.location.href = 'home.html';
             });
         }
     </script>
