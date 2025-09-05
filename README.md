@@ -10,7 +10,7 @@ SerenitySync is a web application designed to provide users with a seamless expe
 
 ```
 SerenitySync/
-├── public/                  # Frontend static HTML pages
+├── public/                 # Frontend static HTML pages
 │   ├── home.html           # Landing page
 │   ├── login.html          # User login page
 │   ├── signup.html         # User registration page
@@ -59,7 +59,7 @@ SerenitySync/
    ```bash
    npm start
    ```
-   The app will be available at `http://localhost:80`.
+   The app will be available at `http://<instance_ip>:80`.
 
 ## ✨ Features
 - **User Authentication**: Secure signup and login using JWT and bcrypt for password hashing.
@@ -77,8 +77,8 @@ SerenitySync/
 ### Chatbot Routes (`/api/agent`)
 - `POST /chat`: Send a message to the chatbot and receive a response.
 
-### History Routes (`/api/history`)
-- `GET /`: Retrieve the user's chat history.
+### History Routes (`/api/get-history`)
+- `GET /get-history`: Retrieve the user's chat history.
 
 ### Mood Routes (`/api/mood`)
 - `POST /mood`: Log the user's mood after login.
