@@ -6,7 +6,23 @@
     <title>Mood Tracker</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460); /* Placeholder gradient background */
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #fff; /* Changed to white background */
+            color: #000; /* Changed font color to black */
+            padding: 20px;
+            border-radius: 10px;
         }
         .mood-container {
             display: flex;
@@ -44,11 +60,9 @@
             white-space: nowrap;
             z-index: 10;
         }
-        .description {
+        .datetime-weather {
             font-size: 16px;
-            color: #333;
-            text-align: center;
-            margin-top: 10px;
+            margin: 10px 0;
         }
         /* Modal styles */
         .modal {
@@ -96,15 +110,18 @@
     </style>
 </head>
 <body>
-    <div class="mood-container">
-        <div class="mood-scale">
-            <span data-description="Happy" onclick="showModal('Happy', '😊', 'Hey there! Your happiness is contagious!', 'Keep spreading those good vibes! Maybe share a smile with someone today.')">😊</span>
-            <span data-description="Content" onclick="showModal('Content', '🙂', 'Hello! You seem to be in a calm and content mood.', 'Take a moment to enjoy this peace. A short walk or some light reading could keep the good feelings going.')">🙂</span>
-            <span data-description="Neutral" onclick="showModal('Neutral', '😐', 'Hi! You\'re feeling steady and balanced today.', 'Try something new to spark some excitement, like listening to a new song or exploring a hobby.')">😐</span>
-            <span data-description="Sad" onclick="showModal('Sad', '😕', 'Hey, it\'s okay to feel a bit down sometimes.', 'Consider talking to a friend or doing something comforting, like watching a favorite movie or enjoying a warm drink.')">😕</span>
-            <span data-description="Angry" onclick="showModal('Angry', '😡', 'Hi there, it seems like you\'re feeling fired up.', 'Take a deep breath and maybe try some calming activities like deep breathing or a quick workout to channel that energy.')">😡</span>
+    <div class="main-container">
+        <h2 id="moodPrompt"></h2>
+        <div class="datetime-weather" id="datetimeWeather"></div>
+        <div class="mood-container">
+            <div class="mood-scale">
+                <span data-description="Happy" onclick="showModal('Happy', '😊', 'Hey there! Your happiness is contagious!', 'Keep spreading those good vibes! Maybe share a smile with someone today.')">😊</span>
+                <span data-description="Content" onclick="showModal('Content', '🙂', 'Hello! You seem to be in a calm and content mood.', 'Take a moment to enjoy this peace. A short walk or some light reading could keep the good feelings going.')">🙂</span>
+                <span data-description="Neutral" onclick="showModal('Neutral', '😐', 'Hi! You\'re feeling steady and balanced today.', 'Try something new to spark some excitement, like listening to a new song or exploring a hobby.')">😐</span>
+                <span data-description="Sad" onclick="showModal('Sad', '😕', 'Hey, it\'s okay to feel a bit down sometimes.', 'Consider talking to a friend or doing something comforting, like watching a favorite movie or enjoying a warm drink.')">😕</span>
+                <span data-description="Angry" onclick="showModal('Angry', '😡', 'Hi there, it seems like you\'re feeling fired up.', 'Take a deep breath and maybe try some calming activities like deep breathing or a quick workout to channel that energy.')">😡</span>
+            </div>
         </div>
-        <div class="description">Click an emoji to select your mood!</div>
     </div>
 
     <div id="moodModal" class="modal">
@@ -117,6 +134,27 @@
     </div>
 
     <script>
+        // Set the mood prompt and datetime/weather
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstname = localStorage.getItem('firstname') || 'Guest';
+            document.getElementById('moodPrompt').textContent = `Hi ${firstname}! How are you feeling today?`;
+
+            // Set date, time, and mock weather
+            const now = new Date();
+            const dateTimeString = now.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+            });
+            // Mock weather data (since no API is provided)
+            const weather = 'Sunny, 75°F';
+            document.getElementById('datetimeWeather').textContent = `${dateTimeString} | ${weather}`;
+        });
+
         let selectedMood = '';
 
         function showModal(mood, emoji, greeting, advice) {
