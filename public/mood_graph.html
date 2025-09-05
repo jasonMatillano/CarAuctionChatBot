@@ -45,12 +45,13 @@
     <title>Mood Graph</title>
     <style>
         body {
-            background-color: #f0f0f0;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460); /* Same background as mood_tracker.html */
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            color: #fff; /* Changed text font to white */
         }
         #moodChart {
             max-width: 800px;
@@ -73,6 +74,9 @@
         }
         .back-btn:hover {
             background-color: #0056b3;
+        }
+        h1 {
+            color: #fff; /* Changed h1 text to white */
         }
     </style>
 </head>
@@ -168,7 +172,7 @@
                         legend: {
                             display: true,
                             labels: {
-                                color: '#666' // Neutral gray shade for legend label
+                                color: '#808080' // Changed to gray shade for "Mood Over Time"
                             }
                         }
                     }
