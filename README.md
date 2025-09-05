@@ -4,7 +4,7 @@ A full-stack **Node.js + Express** application offering secure user authenticati
 
 ## 📖 Overview
 
-SerenitySync is a web application designed to provide users with a seamless experience for interacting with a chatbot, tracking their mood, and managing chat history. It features a robust backend with JWT-based authentication and a simple static HTML frontend.
+SerenitySync is a full-stack web application designed to empower users with tools for mental health and productivity enhancement. It offers a seamless experience through personalized wellness check-ins, mood tracking, and interactive chatbot conversations powered by AWS Bedrock AI. The application securely manages user data and chat history, featuring a robust backend with bycrypt encryption, a DynamoDB NoSQL database, and a lightweight static HTML frontend for accessibility and ease of use.
 
 ## 📂 Project Structure
 
@@ -31,6 +31,7 @@ SerenitySync/
 
 ### Prerequisites
 - **Node.js**: Version 14.x or higher
+- **git**: Version 2.42.0 or higher
 - **npm**: Version 6.x or higher
 - **DynamoDB**: AWS account with DynamoDB configured
 - **AWSBedrock**: AWS account with AWS Bedrock Agent configured
@@ -51,7 +52,6 @@ SerenitySync/
    ```
 4. Create a `.env` file in the root directory and configure the following variables:
    ```env
-   AWS_REGION=your_aws_region
    AWS_ACCESS_KEY_ID=your_access_key
    AWS_SECRET_ACCESS_KEY=your_secret_key
    ```
@@ -62,7 +62,7 @@ SerenitySync/
    The app will be available at `http://<instance_ip>:80`.
 
 ## ✨ Features
-- **User Authentication**: Secure signup and login using JWT and bcrypt for password hashing.
+- **User Authentication**: Secure signup and login using bcrypt for password hashing.
 - **Chatbot Interaction**: Engage with a chatbot and send messages via API.
 - **Chat History**: Retrieve and view past chat interactions.
 - **Mood Tracking**: Log and visualize user mood data post-login.
@@ -72,7 +72,7 @@ SerenitySync/
 
 ### Authentication Routes (`/api/auth`)
 - `POST /signup`: Register a new user with email and password.
-- `POST /login`: Authenticate user and return a JWT token.
+- `POST /login`: Authenticate user using credentials.
 
 ### Chatbot Routes (`/api/agent`)
 - `POST /chat`: Send a message to the chatbot and receive a response.
@@ -85,10 +85,11 @@ SerenitySync/
 - `GET /mood`: Retrieve the user's mood history for visualization.
 
 ## 🧰 Tech Stack
-- **Backend**: Node.js, Express.js, AWSBedrock
+- **Backend**: Node.js, Express.js
 - **Frontend**: HTML, CSS, JavaScript
 - **Database**: AWS DynamoDB
-- **Authentication**: JSON Web Tokens (JWT), bcrypt
+- **AI Chatbot**: AWS Bedrock Agent
+- **Encyption**: Bcrypt
 - **Environment**: dotenv for configuration
 
 ## 🔮 Future Improvements
@@ -98,6 +99,7 @@ SerenitySync/
 - Deploy the application on AWS with Application Load Balancer (ALB) and Auto Scaling to handle large-scale user traffic.
 - Add real-time notifications for user interactions.
 - Introduce data analytics for mood trends and chatbot usage.
+- 
 
 ## 👥 Authors
 - Jason
