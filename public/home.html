@@ -64,6 +64,8 @@
             margin-right: auto;
             text-align: left;
             align-self: flex-start;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Ensure long words wrap */
         }
         .input-container {
             display: flex;
@@ -210,7 +212,22 @@
         const chatContainer = document.getElementById('chatContainer');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
-        messageDiv.textContent = message;
+        
+        if (sender === 'bot') {
+            // Replace newlines with <br> and preserve indentation with &nbsp;
+            const formattedMessage = message
+                .split('\n')
+                .map(line => {
+                    const leadingSpaces = line.match(/^\s*/)[0].length;
+                    const spaces = '&nbsp;'.repeat(leadingSpaces);
+                    return spaces + line.trim();
+                })
+                .join('<br>');
+            messageDiv.innerHTML = formattedMessage;
+        } else {
+            messageDiv.textContent = message;
+        }
+        
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
