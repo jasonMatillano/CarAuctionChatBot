@@ -1,1 +1,110 @@
-# CarAuctionChatBot
+# SerenitySync
+
+A full-stack **Node.js + Express** application offering secure user authentication, interactive chatbot functionality, mood tracking, and chat history management.
+
+## 📖 Overview
+
+SerenitySync is a web application designed to provide users with a seamless experience for interacting with a chatbot, tracking their mood, and managing chat history. It features a robust backend with JWT-based authentication and a simple static HTML frontend.
+
+## 📂 Project Structure
+
+```
+SerenitySync/
+├── public/                  # Frontend static HTML pages
+│   ├── home.html           # Landing page
+│   ├── login.html          # User login page
+│   ├── signup.html         # User registration page
+│   ├── mood_tracker.html   # Mood tracking interface
+│   └── mood_graph.html     # Mood history visualization
+├── routes/                 # Express route handlers
+│   ├── agentRoutes.js      # Chatbot interaction routes
+│   ├── authRoutes.js       # Authentication routes
+│   ├── historyRoutes.js    # Chat history routes
+│   └── moodRoutes.js       # Mood tracking routes
+├── .env                    # Environment variables (not tracked in Git)
+├── server.js               # Main application entry point
+├── package.json            # Node.js dependencies and scripts
+└── README.md               # Project documentation
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js**: Version 14.x or higher
+- **npm**: Version 6.x or higher
+- **DynamoDB**: AWS account with DynamoDB configured
+- **AWSBedrock**: AWS account with AWS Bedrock Agent configured
+- **AWS CLI**: Configured with appropriate credentials (optional for local setup)
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/serenitysync.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd serenitysync
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a `.env` file in the root directory and configure the following variables:
+   ```env
+   AWS_REGION=your_aws_region
+   AWS_ACCESS_KEY_ID=your_access_key
+   AWS_SECRET_ACCESS_KEY=your_secret_key
+   ```
+5. Start the application:
+   ```bash
+   npm start
+   ```
+   The app will be available at `http://localhost:80`.
+
+## ✨ Features
+- **User Authentication**: Secure signup and login using JWT and bcrypt for password hashing.
+- **Chatbot Interaction**: Engage with a chatbot and send messages via API.
+- **Chat History**: Retrieve and view past chat interactions.
+- **Mood Tracking**: Log and visualize user mood data post-login.
+- **Static Frontend**: Lightweight HTML, CSS, and JavaScript-based interface.
+
+## 🛠️ API Endpoints
+
+### Authentication Routes (`/api/auth`)
+- `POST /signup`: Register a new user with email and password.
+- `POST /login`: Authenticate user and return a JWT token.
+
+### Chatbot Routes (`/api/agent`)
+- `POST /chat`: Send a message to the chatbot and receive a response.
+
+### History Routes (`/api/history`)
+- `GET /`: Retrieve the user's chat history.
+
+### Mood Routes (`/api/mood`)
+- `POST /mood`: Log the user's mood after login.
+- `GET /mood`: Retrieve the user's mood history for visualization.
+
+## 🧰 Tech Stack
+- **Backend**: Node.js, Express.js, AWSBedrock
+- **Frontend**: HTML, CSS, JavaScript
+- **Database**: AWS DynamoDB
+- **Authentication**: JSON Web Tokens (JWT), bcrypt
+- **Environment**: dotenv for configuration
+
+## 🔮 Future Improvements
+- Enhance frontend with modern CSS frameworks (e.g., Tailwind CSS or Bootstrap) for improved styling and responsiveness.
+- Implement unit and integration tests using frameworks like Jest or Mocha.
+- Integrate Amazon Polly for voice-based chatbot interactions.
+- Deploy the application on AWS with Application Load Balancer (ALB) and Auto Scaling to handle large-scale user traffic.
+- Add real-time notifications for user interactions.
+- Introduce data analytics for mood trends and chatbot usage.
+
+## 👥 Authors
+- Jason
+- Kiki
+- Rasha
+- Tony
+- Negassi
+
+## 📄 License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
