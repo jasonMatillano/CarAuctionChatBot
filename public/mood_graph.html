@@ -118,6 +118,16 @@
 
             const labels = moods.map(entry => new Date(entry.timestamp).toLocaleString());
             const data = moods.map(entry => moodValues[entry.mood] || 3);
+            const colors = moods.map(entry => {
+                switch (entry.mood) {
+                    case 'Happy': return '#28a745'; // Green
+                    case 'Content': return '#90EE90'; // Light Green
+                    case 'Neutral': return '#ffc107'; // Yellow
+                    case 'Sad': return '#ff851b'; // Orange
+                    case 'Angry': return '#dc3545'; // Red
+                    default: return '#007bff'; // Default to blue
+                }
+            });
 
             new Chart(ctx, {
                 type: 'line',
@@ -126,8 +136,10 @@
                     datasets: [{
                         label: 'Mood Over Time',
                         data: data,
-                        borderColor: '#007bff',
-                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderColor: colors,
+                        backgroundColor: colors.map(color => color.replace(/[^,]+(?=\))/, '0.1')),
+                        pointBackgroundColor: colors,
+                        pointBorderColor: colors,
                         fill: true,
                         tension: 0.4
                     }]
@@ -154,7 +166,10 @@
                     },
                     plugins: {
                         legend: {
-                            display: true
+                            display: true,
+                            labels: {
+                                color: '#666' // Neutral gray shade for legend label
+                            }
                         }
                     }
                 }
