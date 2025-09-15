@@ -94,12 +94,12 @@ SerenitySync/
 
 ## 🔮 Future Improvements
 - Enhance frontend with modern CSS frameworks (e.g., Tailwind CSS or Bootstrap) for improved styling and responsiveness.
+- Utilize JavaScript Framework such as ReactJS or AngularJS for web application frontend.
 - Implement unit and integration tests using frameworks like Jest or Mocha.
 - Integrate Amazon Polly for voice-based chatbot interactions.
 - Deploy the application on AWS with Application Load Balancer (ALB) and Auto Scaling to handle large-scale user traffic.
-- Add real-time notifications for user interactions.
-- Introduce data analytics for mood trends and chatbot usage.
-- 
+- Apply AWS Route53 and DNS service for production.
+- Utilize AWS Simple Notification Service for data analytics for mood trends, chatbot usage, scheduled login and wellness check.
 
 ## 👥 Authors
 - Jason

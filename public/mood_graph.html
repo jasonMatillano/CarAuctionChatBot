@@ -153,18 +153,29 @@
                         y: {
                             beginAtZero: true,
                             max: 6,
+                            title: {
+                                display: true,
+                                text: 'Mood',
+                                color: '#fff' // Changed x-axis title to white
+                            }, 
                             ticks: {
                                 stepSize: 1,
                                 callback: function(value) {
                                     const moodMap = { 5: 'Happy', 4: 'Content', 3: 'Neutral', 2: 'Sad', 1: 'Angry' };
                                     return moodMap[value] || '';
-                                }
+                                },
+                                color: '#fff' // Changed y-axis tick labels to white
                             }
+                            
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Time'
+                                text: 'Time',
+                                color: '#fff' // Changed x-axis title to white
+                            }, 
+                            ticks: {
+                                color: '#fff' // Changed x-axis tick labels to white
                             }
                         }
                     },
@@ -172,7 +183,7 @@
                         legend: {
                             display: true,
                             labels: {
-                                color: '#808080' // Changed to gray shade for "Mood Over Time"
+                                color: '#fff' // Changed to gray shade for "Mood Over Time"
                             }
                         }
                     }
