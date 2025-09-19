@@ -24,9 +24,24 @@
             flex-direction: column;
             height: 80vh;
         }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
         h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
+            margin: 0;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
         }
         p {
             font-size: 1.2em;
@@ -126,10 +141,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Introducing SerenitySync</h1>
+        <div class="header-container">
+            <h1>SerenitySync</h1>
+            <img src="SerSyncLogo.png" alt="SerSync Logo" class="logo">
+        </div>
         <p class="username" id="username">Welcome, Guest</p>
         <br>
-        <i>Hey, what’s on your mind today? Let’s dive into your feelings and concerns, <br> or if you’d prefer, I can lend a hand with your exciting cloud project—your choice!</i>
+        <i>What’s on your mind today? Let’s dive into your feelings and concerns, <br> or if you’d prefer, I can lend a hand with your project—your choice!</i>
         <br>
         <br>
         <div class="chat-container" id="chatContainer">

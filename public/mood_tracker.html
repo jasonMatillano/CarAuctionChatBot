@@ -9,10 +9,34 @@
             margin: 0;
             height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             font-family: Arial, sans-serif;
             background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460); /* Placeholder gradient background */
+        }
+        .logo-placeholder {
+            width: 600px;
+            height: 300px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            position: relative;
+            z-index: 10;
+            background-color: transparent;
+        }
+        .logo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            display: block;
+        }
+        .content-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
         }
         .main-container {
             display: flex;
@@ -23,6 +47,8 @@
             color: #000; /* Changed font color to black */
             padding: 20px;
             border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
         }
         .mood-container {
             display: flex;
@@ -110,16 +136,22 @@
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <h2 id="moodPrompt"></h2>
-        <div class="datetime-weather" id="datetimeWeather"></div>
-        <div class="mood-container">
-            <div class="mood-scale">
-                <span data-description="Happy" onclick="showModal('Happy', '😊', 'Hey there! Your happiness is contagious!', 'Keep spreading those good vibes! Maybe share a smile with someone today.')">😊</span>
-                <span data-description="Content" onclick="showModal('Content', '🙂', 'Hello! You seem to be in a calm and content mood.', 'Take a moment to enjoy this peace. A short walk or some light reading could keep the good feelings going.')">🙂</span>
-                <span data-description="Neutral" onclick="showModal('Neutral', '😐', 'Hi! You\'re feeling steady and balanced today.', 'Try something new to spark some excitement, like listening to a new song or exploring a hobby.')">😐</span>
-                <span data-description="Sad" onclick="showModal('Sad', '😕', 'Hey, it\'s okay to feel a bit down sometimes.', 'Consider talking to a friend or doing something comforting, like watching a favorite movie or enjoying a warm drink.')">😕</span>
-                <span data-description="Angry" onclick="showModal('Angry', '😡', 'Hi there, it seems like you\'re feeling fired up.', 'Take a deep breath and maybe try some calming activities like deep breathing or a quick workout to channel that energy.')">😡</span>
+    <div class="logo-placeholder">
+         <img src="SerSyncLogo.png" alt="SerSync Logo">
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="main-container">
+            <h2 id="moodPrompt"></h2>
+            <div class="datetime-weather" id="datetimeWeather"></div>
+            <div class="mood-container">
+                <div class="mood-scale">
+                    <span data-description="Happy" onclick="showModal('Happy', '😊', 'Hey there! Your happiness is contagious!', 'Keep spreading those good vibes! Maybe share a smile with someone today.')">😊</span>
+                    <span data-description="Content" onclick="showModal('Content', '🙂', 'Hello! You seem to be in a calm and content mood.', 'Take a moment to enjoy this peace. A short walk or some light reading could keep the good feelings going.')">🙂</span>
+                    <span data-description="Neutral" onclick="showModal('Neutral', '😐', 'Hi! You\'re feeling steady and balanced today.', 'Try something new to spark some excitement, like listening to a new song or exploring a hobby.')">😐</span>
+                    <span data-description="Sad" onclick="showModal('Sad', '😕', 'Hey, it\'s okay to feel a bit down sometimes.', 'Consider talking to a friend or doing something comforting, like watching a favorite movie or enjoying a warm drink.')">😕</span>
+                    <span data-description="Angry" onclick="showModal('Angry', '😡', 'Hi there, it seems like you\'re feeling fired up.', 'Take a deep breath and maybe try some calming activities like deep breathing or a quick workout to channel that energy.')">😡</span>
+                </div>
             </div>
         </div>
     </div>
