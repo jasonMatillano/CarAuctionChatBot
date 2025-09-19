@@ -37,7 +37,8 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script><!DOCTYPE html>
+</script>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -52,6 +53,26 @@
             align-items: center;
             padding: 20px;
             color: #fff; /* Changed text font to white */
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        h1 {
+            color: #fff; /* Changed h1 text to white */
+            font-size: 2em;
+            margin: 0;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            display: block;
+            border-radius: 8px;
         }
         #moodChart {
             max-width: 800px;
@@ -75,13 +96,13 @@
         .back-btn:hover {
             background-color: #0056b3;
         }
-        h1 {
-            color: #fff; /* Changed h1 text to white */
-        }
     </style>
 </head>
 <body>
-    <h1>Your Mood History</h1>
+    <div class="header-container">
+        <h1>Your Mood History</h1>
+        <img src="SerSyncLogo.png" alt="SerSync Logo" class="logo">
+    </div>
     <canvas id="moodChart"></canvas>
     <div id="error" class="error" style="display: none;"></div>
     <button class="back-btn" onclick="window.location.href='home.html'">Back to Home</button>
